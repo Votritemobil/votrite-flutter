@@ -73,30 +73,43 @@ class TtsService {
     } catch (_) {}
   }
 
-  Future<void> speak(String text) async {
-    if (!_enabled) return;
+  // Every request to say something takes a ticket. speak() has to await init and
+  // await the previous utterance stopping, and those awaits can take seconds -- so
+  // by the time an utterance is actually handed to the engine, the voter may have
+  // moved to a different screen, or pressed Z for silence. Without this check the
+  // stale utterance still fires and talks over whatever is happening now: pressing
+  // Continue on the settings screen would cut off "Settings saved, next select your
+  // ballot" and read out the instructions for the screen just left. If a newer
+  // request (or a stop) has come in while we were waiting, the old one is dropped.
+  int _seq = 0;
+
+  Future<void> _speakInternal(String text) async {
+    final ticket = ++_seq;
     await _ensureInit();
+    if (ticket != _seq) return;
     try {
       if (_speaking) await _tts.stop().timeout(const Duration(seconds: 1), onTimeout: () {});
+      if (ticket != _seq) return;
       _speaking = true;
       await _tts.speak(text).timeout(const Duration(seconds: 3), onTimeout: () {});
     } catch (_) {
       _speaking = false;
     }
+  }
+
+  Future<void> speak(String text) async {
+    if (!_enabled) return;
+    await _speakInternal(text);
   }
 
   Future<void> speakAlways(String text) async {
-    await _ensureInit();
-    try {
-      if (_speaking) await _tts.stop().timeout(const Duration(seconds: 1), onTimeout: () {});
-      _speaking = true;
-      await _tts.speak(text).timeout(const Duration(seconds: 3), onTimeout: () {});
-    } catch (_) {
-      _speaking = false;
-    }
+    await _speakInternal(text);
   }
 
   Future<void> stop() async {
+    // Bump the ticket first: this cancels any utterance that is still waiting on an
+    // await inside _speakInternal, so silence stays silent. Z means silence NOW.
+    _seq++;
     try {
       _speaking = false;
       await _tts.stop().timeout(const Duration(seconds: 1), onTimeout: () {});

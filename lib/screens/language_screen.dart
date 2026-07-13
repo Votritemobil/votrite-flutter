@@ -31,6 +31,9 @@ class _LanguageScreenState extends State<LanguageScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(milliseconds: 300), () {
+      // A delayed announcement must never fire after the voter has left this
+      // screen -- it would cut off whatever the next screen is saying.
+      if (!mounted) return;
       TtsService().speakAlways(
         'Choose your language. '
         'Press 1 for English. '

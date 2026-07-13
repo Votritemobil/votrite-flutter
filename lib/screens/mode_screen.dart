@@ -19,6 +19,9 @@ class _ModeScreenState extends State<ModeScreen> {
   void initState() {
     super.initState();
     Future.delayed(const Duration(milliseconds: 500), () {
+      // A delayed announcement must never fire after the voter has left this
+      // screen -- it would cut off whatever the next screen is saying.
+      if (!mounted) return;
       TtsService().speakAlways(
         'Welcome to Vote Right Mobil. How would you like to vote? '
         'Tap the top option for Normal touchscreen Mode. '

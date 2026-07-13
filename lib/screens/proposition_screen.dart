@@ -102,6 +102,11 @@ class _PropositionScreenState extends State<PropositionScreen> {
       _announceCurrentProp();
       return KeyEventResult.handled;
     }
+    // Z silences the voice guidance instantly, on every screen.
+    if (key == LogicalKeyboardKey.keyZ) {
+      TtsService().stop();
+      return KeyEventResult.handled;
+    }
     if (key == LogicalKeyboardKey.keyL) {
       final provider = context.read<VotingProvider>();
       final prop = provider.propositions[_currentPropIndex];

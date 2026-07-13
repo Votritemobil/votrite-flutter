@@ -130,6 +130,11 @@ class _BallotScreenState extends State<BallotScreen> {
       }
       return KeyEventResult.handled;
     }
+    // Z silences the voice guidance instantly, on every screen.
+    if (key == LogicalKeyboardKey.keyZ) {
+      TtsService().stop();
+      return KeyEventResult.handled;
+    }
     if (key == LogicalKeyboardKey.keyL) {
       TtsService().speak(
         'Ballot selection screen. Tap a ballot to select it. Swipe up and down to scroll.',

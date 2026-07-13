@@ -139,6 +139,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
       }
       return KeyEventResult.handled;
     }
+    // Z silences the voice guidance instantly, on every screen.
+    if (key == LogicalKeyboardKey.keyZ) {
+      TtsService().stop();
+      return KeyEventResult.handled;
+    }
     if (key == LogicalKeyboardKey.keyL) {
       TtsService().speak(
         'Review screen. Tap any item to change your vote. '
@@ -162,7 +167,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
       if (propIdx < provider.propositions.length) {
         final prop = provider.propositions[propIdx];
         final vote = prop.vote == 1 ? prop.yesLabel : prop.vote == 2 ? prop.noLabel : 'No vote';
-        TtsService().speak('${prop.propTitle}. Vote: $vote.');
+        // Read the actual question, not just its title. A sighted voter can re-read
+        // the proposition on this screen before casting; previously a blind voter
+        // heard only "School Modernization Bond. Vote: Yes." and had no way to hear
+        // back WHAT they had voted on.
+        TtsService().speak(
+          '${prop.propTitle}. ${prop.propText} '
+          'Your vote: $vote. Press F to change.',
+        );
       }
     }
   }

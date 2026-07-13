@@ -27,6 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
     super.initState();
     _pinController.addListener(_onPinChanged);
     Future.delayed(const Duration(milliseconds: 500), () {
+      // A delayed announcement must never fire after the voter has left this
+      // screen -- it would cut off whatever the next screen is saying.
+      if (!mounted) return;
       TtsService().speak(
         'Secure voter login. '
         'Tap the PIN field in the center of the screen to open the number pad. '

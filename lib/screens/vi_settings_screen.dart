@@ -23,6 +23,9 @@ class _VISettingsScreenState extends State<VISettingsScreen> {
     super.initState();
     _speechRate = TtsService().currentRate;
     Future.delayed(const Duration(milliseconds: 500), () {
+      // A delayed announcement must never fire after the voter has left this
+      // screen -- it would cut off whatever the next screen is saying.
+      if (!mounted) return;
       TtsService().speak(
         'Accessibility settings. '
         'Adjust your voice speed and text size before voting. '

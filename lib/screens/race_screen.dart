@@ -328,8 +328,12 @@ class _RaceScreenState extends State<RaceScreen> {
       }
       return KeyEventResult.handled;
     }
+    // Z is SILENCE, not "next". It used to call _saveAndProceed(), so a voter who
+    // pressed Z to shut the voice up would instead have their selections committed
+    // and be moved on to the next race without being told. J and Enter already
+    // advance the ballot; Z must only ever stop the speech, immediately.
     if (key == LogicalKeyboardKey.keyZ) {
-      _saveAndProceed();
+      TtsService().stop();
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.keyL) {
