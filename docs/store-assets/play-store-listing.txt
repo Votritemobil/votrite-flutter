@@ -1,0 +1,56 @@
+VOTRITE — GOOGLE PLAY STORE LISTING (DRAFT for Jim's approval)
+================================================================
+
+APP NAME (max 30 chars):
+VotRite
+
+SHORT DESCRIPTION (max 80 chars):
+Accessible, secure online voting for every voter — hear it, see it, vote it.
+
+FULL DESCRIPTION (max 4000 chars):
+----------------------------------------------------------------
+VotRite makes voting accessible to everyone.
+
+Built for real elections and designed from the ground up for voters who are blind, have low vision, or simply want a clearer, guided voting experience, VotRite lets you cast your ballot with confidence — by touch, by sight, or entirely by ear.
+
+ACCESSIBILITY FIRST
+• Full spoken guidance — every ballot, race, candidate, and proposition is read aloud, clearly and completely.
+• Vision mode with simple home-row key controls and tactile feedback, so you can navigate without needing to see the screen.
+• Adjustable reading speed and clear, high-contrast visuals for low-vision voters.
+• Every on-screen instruction is also spoken, so nothing is missed.
+
+VOTE IN YOUR LANGUAGE
+• Ballots and guidance available in multiple languages, including Spanish, Chinese, Russian, Polish, and more.
+• The full ballot — candidate names, propositions, and instructions — is presented in your chosen language.
+
+SIMPLE, GUIDED VOTING
+• Step-by-step flow: choose your ballot, pick your language, confirm your identity, and vote.
+• Vote for candidates, add write-in candidates, and answer propositions — with clear confirmation at every step.
+• Review your full ballot before you cast it, and edit any choice.
+• Overvote protection prevents you from accidentally selecting too many candidates.
+
+SECURE & PRIVATE
+• Your identity is verified with a secure PIN.
+• Your selections are private and protected.
+• Clear review-and-confirm screen before your vote is final.
+
+VotRite is part of a US accessibility voting initiative committed to making sure every eligible voter — regardless of ability or language — can vote independently and privately.
+
+Vote your way. Hear it. See it. Vote it.
+----------------------------------------------------------------
+
+CATEGORY: Tools  (or "Government/Civics" if available)
+CONTENT RATING: Everyone
+TAGS/KEYWORDS: voting, accessible voting, elections, ballot, accessibility, blind, low vision, screen reader, multilingual voting
+
+GRAPHIC ASSETS NEEDED (Play Store requirements):
+• App icon: 512 x 512 PNG (32-bit, with alpha) — from app's launcher icon
+• Feature graphic: 1024 x 500 PNG/JPG
+• Phone screenshots: min 2, max 8 (16:9 or 9:16, min 320px, max 3840px) — capture: ballot select, language select, vision mode race page, candidate list w/ TTS, review page, confirmation
+• (Optional) 7" & 10" tablet screenshots
+
+CONTACT / STORE DETAILS:
+• Developer name: Voterite Inc (d/b/a VotRite)
+• Support email: (Jim to provide — a voterite.com address once email is live)
+• Website: votritemobil.com
+• Privacy policy URL: (to be hosted — see privacy-policy.html)
