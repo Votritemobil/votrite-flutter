@@ -73,6 +73,11 @@ class _ModeScreenState extends State<ModeScreen> {
       },
       child: Scaffold(
       body: Container(
+        // Fill the whole screen. Without this the Container sizes itself to its
+        // child, so on any screen where the content is shorter than the display
+        // the gradient stopped partway down and left a white band below it --
+        // with the decorative bottom bar stranded in the middle of the screen.
+        constraints: const BoxConstraints.expand(),
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,

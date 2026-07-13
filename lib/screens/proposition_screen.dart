@@ -181,62 +181,77 @@ class _PropositionScreenState extends State<PropositionScreen> {
                 ),
               ),
               const SizedBox(height: 12),
+              // The proposition text and the Yes/No buttons scroll together as one
+              // block, packed to the top. Previously the text sat in an Expanded that
+              // swallowed all the spare height, which stranded Yes/No at the very
+              // bottom of the screen with a dead gap above them -- the voter had to
+              // look far away from the question to answer it. Now the buttons sit
+              // directly under the text they answer, and a long proposition simply
+              // scrolls, carrying its buttons with it. Previous/Next stay pinned
+              // below, so navigation never moves around.
               Expanded(
                 child: SingleChildScrollView(
-                  child: Semantics(
-                    label: prop.propText,
-                    readOnly: true,
-                    child: Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: VotRiteTheme.lightGray,
-                        borderRadius: BorderRadius.circular(12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Semantics(
+                        label: prop.propText,
+                        readOnly: true,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: VotRiteTheme.lightGray,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            prop.propText,
+                            style: const TextStyle(fontSize: 13, height: 1.5),
+                          ),
+                        ),
                       ),
-                      child: Text(
-                        prop.propText,
-                        style: const TextStyle(fontSize: 13, height: 1.5),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _VoteButton(
+                              label: prop.yesLabel,
+                              icon: Icons.thumb_up,
+                              isSelected: prop.vote == 1,
+                              color: VotRiteTheme.successGreen,
+                              onTap: () => _vote(1),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _VoteButton(
+                              label: prop.noLabel,
+                              icon: Icons.thumb_down,
+                              isSelected: prop.vote == 2,
+                              color: VotRiteTheme.errorRed,
+                              onTap: () => _vote(2),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                      if (prop.vote > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: TextButton(
+                            onPressed: () {
+                              final provider = context.read<VotingProvider>();
+                              provider.savePropositionVote(prop.propositionId, 0);
+                              setState(() {});
+                              TtsService().speak('Cleared vote on ${prop.propTitle}.');
+                            },
+                            child: const Text('Clear Selection', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: _VoteButton(
-                      label: prop.yesLabel,
-                      icon: Icons.thumb_up,
-                      isSelected: prop.vote == 1,
-                      color: VotRiteTheme.successGreen,
-                      onTap: () => _vote(1),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _VoteButton(
-                      label: prop.noLabel,
-                      icon: Icons.thumb_down,
-                      isSelected: prop.vote == 2,
-                      color: VotRiteTheme.errorRed,
-                      onTap: () => _vote(2),
-                    ),
-                  ),
-                ],
-              ),
-              if (prop.vote > 0)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: TextButton(
-                    onPressed: () {
-                      final provider = context.read<VotingProvider>();
-                      provider.savePropositionVote(prop.propositionId, 0);
-                      setState(() {});
-                      TtsService().speak('Cleared vote on ${prop.propTitle}.');
-                    },
-                    child: const Text('Clear Selection', style: TextStyle(fontSize: 12, color: Colors.grey)),
-                  ),
-                ),
               const SizedBox(height: 10),
               Row(
                 children: [

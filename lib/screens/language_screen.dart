@@ -16,10 +16,15 @@ class LanguageScreen extends StatefulWidget {
 class _LanguageScreenState extends State<LanguageScreen> {
   String? _selectedLang;
 
+  // 'label' is what the voter reads on the card, so it is written in that
+  // language -- someone who only reads Chinese has to be able to find their own
+  // language here. 'spoken' is what the TTS voice says; it stays in English
+  // because the engine is still on the English voice at this point and would
+  // mangle a Chinese string.
   static const _languages = [
-    {'code': 'en', 'label': 'English'},
-    {'code': 'es', 'label': 'Español'},
-    {'code': 'zh-CN', 'label': 'Chinese'},
+    {'code': 'en', 'label': 'English', 'spoken': 'English'},
+    {'code': 'es', 'label': 'Español', 'spoken': 'Español'},
+    {'code': 'zh-CN', 'label': '中文', 'spoken': 'Chinese'},
   ];
 
   @override
@@ -37,8 +42,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
 
   void _selectLanguage(String code) {
     setState(() => _selectedLang = code);
-    final label = _languages.firstWhere((l) => l['code'] == code)['label']!;
-    TtsService().speakAlways('$label selected.');
+    final spoken = _languages.firstWhere((l) => l['code'] == code)['spoken']!;
+    TtsService().speakAlways('$spoken selected.');
     context.read<VotingProvider>().setLanguage(code);
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) {
@@ -75,6 +80,11 @@ class _LanguageScreenState extends State<LanguageScreen> {
       },
       child: Scaffold(
         body: Container(
+          // Fill the whole screen. Without this the Container sizes itself to its
+          // child, so on any screen where the content is shorter than the display
+          // the gradient stopped partway down and left a white band below it --
+          // with the decorative bottom bar stranded in the middle of the screen.
+          constraints: const BoxConstraints.expand(),
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -192,8 +202,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       const SizedBox(height: 10),
                       _LanguageCard(
                         icon: Icons.language,
-                        title: 'Chinese',
-                        subtitle: 'Tap to continue in Chinese',
+                        title: '中文',
+                        subtitle: '点按以继续使用中文',
                         accentColor: const Color(0xFFB31942),
                         isSelected: _selectedLang == 'zh-CN',
                         onTap: () => _selectLanguage('zh-CN'),
