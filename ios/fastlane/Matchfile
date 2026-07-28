@@ -1,0 +1,4 @@
+git_url("https://github.com/anirudhatalmale6-alt/votrite-certs")
+storage_mode("git")
+type("appstore")
+app_identifier("com.votrite.ios")

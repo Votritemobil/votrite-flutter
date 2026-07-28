@@ -1,0 +1,65 @@
+name: iOS Release to TestFlight
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: macos-15
+    timeout-minutes: 60
+
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+      TEAM_ID: ${{ secrets.TEAM_ID }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_AUTH }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select latest Xcode
+        run: |
+          XCODE_PATH=$(ls -d /Applications/Xcode*.app 2>/dev/null | sort -V | tail -1)
+          echo "Using Xcode at: $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH"
+          xcodebuild -version
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: 'stable'
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: ios
+
+      - name: Create Gemfile
+        working-directory: ios
+        run: |
+          cat > Gemfile << 'EOF'
+          source "https://rubygems.org"
+          gem "fastlane"
+          EOF
+          bundle install
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Build Flutter iOS
+        run: flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+
+      - name: Sign and Upload with Fastlane
+        working-directory: ios
+        run: bundle exec fastlane beta
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: votrite-ios-release
+          path: ios/VotRite.ipa
+          if-no-files-found: ignore
