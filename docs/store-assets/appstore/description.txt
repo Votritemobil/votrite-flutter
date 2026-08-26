@@ -1,0 +1,36 @@
+Vote in your election from your own phone, using only the PIN code your election office gave you.
+
+VotRite is used by boards of elections, unions, school districts and membership organizations to run a real election on the devices voters already carry. There is no account to create and no password to remember.
+
+HOW IT WORKS
+- Choose your election from the list
+- Enter the PIN code you were given
+- Work through the ballot one race at a time
+- Review every choice on a single screen before you cast
+- Watch your ballot be confirmed on screen
+
+BUILT FOR VOTERS WHO CANNOT SEE THE SCREEN
+Accessibility is not bolted on here. Before the ballot opens you choose how you want to vote:
+- Full voice guidance that reads every race, candidate, party and proposition aloud
+- Speech speed and text size you set yourself, before you start
+- High contrast display for low vision voters
+- Keyboard navigation for voters using an external keyboard
+- Every control labeled for VoiceOver
+
+VOTE IN YOUR LANGUAGE
+English, Espanol and Chinese.
+
+WHAT YOUR BALLOT CAN INCLUDE
+- Single choice and multiple choice races
+- Party line voting
+- Write-in candidates
+- Propositions and referenda, Yes/No or For/Against
+- Ranked choice races
+
+NOTHING IS CAST BY ACCIDENT
+Nothing is submitted until you press Cast Ballot and confirm it. The review screen lists every race, every selection and every proposition answer, and you can tap any line to change it. If you select too many candidates in a race, the app stops you.
+
+ABOUT YOUR PIN
+Your PIN comes from your election administrator, not from us. One PIN casts one ballot. VotRite does not ask for your name, address, email address or telephone number, requests no location permission, and contains no advertising or tracking software.
+
+Published by Voterite Inc., d/b/a VotRite.
