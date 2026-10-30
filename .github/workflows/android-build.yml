@@ -1,0 +1,52 @@
+name: Android Build
+
+# Builds the Android app bundle. The bundle is signed with the Play upload key
+# OUTSIDE GitHub (the upload key is never stored here); the VotRite app signing
+# key for ballots comes from the repository secret VR_APP_KEY.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: 'stable'
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Tests
+        run: flutter test
+
+      - name: Key fingerprint (compare with the server; does not reveal the key)
+        env:
+          VR_APP_KEY: ${{ secrets.VR_APP_KEY }}
+        run: python3 -c "import hmac,hashlib,os; print('key check:', hmac.new(os.environ['VR_APP_KEY'].encode(), b'0|key-check', hashlib.sha256).hexdigest()[:12])"
+
+      - name: Build app bundle
+        env:
+          VR_APP_KEY: ${{ secrets.VR_APP_KEY }}
+        run: |
+          if [ -z "$VR_APP_KEY" ]; then echo "VR_APP_KEY secret missing"; exit 1; fi
+          flutter build appbundle --release --dart-define=VR_APP_KEY="$VR_APP_KEY"
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: votrite-android-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 7

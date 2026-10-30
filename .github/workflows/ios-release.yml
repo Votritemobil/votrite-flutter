@@ -50,7 +50,11 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter iOS
-        run: flutter build ios --release --no-codesign --build-number=${{ github.run_number }}
+        env:
+          VR_APP_KEY: ${{ secrets.VR_APP_KEY }}
+        run: |
+          if [ -z "$VR_APP_KEY" ]; then echo "VR_APP_KEY secret missing"; exit 1; fi
+          flutter build ios --release --no-codesign --build-number=${{ github.run_number }} --dart-define=VR_APP_KEY="$VR_APP_KEY"
 
       - name: Sign and Upload with Fastlane
         working-directory: ios

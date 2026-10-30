@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import '../models/ballot.dart';
 import '../models/race.dart';
@@ -8,6 +9,54 @@ import '../models/proposition.dart';
 
 class ApiService {
   static const String baseUrl = 'https://api.votritemobil.com/api';
+
+  // Signing key of the VotRite app, given at build time (--dart-define=VR_APP_KEY=...),
+  // never stored in this repository. The server checks the signature so it can tell
+  // the real app from a script.
+  static const String _appKey = String.fromEnvironment('VR_APP_KEY');
+
+  /// hex(HMAC-SHA256(key, "<ballot_id>|<pincode>")) - the same value the server computes.
+  static String signBallot(String key, Object ballotId, String pincode) {
+    return Hmac(sha256, utf8.encode(key)).convert(utf8.encode('$ballotId|$pincode')).toString();
+  }
+
+  /// Sends the WHOLE ballot in one request. The server stores every choice and marks
+  /// the PIN used in one step, or stores nothing (all-or-nothing).
+  /// Returns null when the ballot was stored, otherwise a message for the voter.
+  Future<String?> submitBallot(Map<String, dynamic> ballot) async {
+    if (_appKey.isNotEmpty) {
+      ballot['sig'] = signBallot(_appKey, ballot['ballot_id'], ballot['pincode'].toString());
+    }
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/ballot/submit'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'ballot': jsonEncode(ballot)}),
+          )
+          .timeout(const Duration(seconds: 60));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final rows = data is Map ? data['data'] : null;
+        if (rows is List && rows.isNotEmpty && rows.first['state'] == 'success') {
+          return null;
+        }
+        final error = data is Map ? (data['error'] ?? '').toString() : '';
+        if (error.contains('already voted')) {
+          return 'This PIN has already been used to vote. The ballot cast with it is counted.';
+        }
+        if (error.contains('update the VotRite app')) {
+          return 'Please update the VotRite app, then vote again.';
+        }
+      }
+      if (response.statusCode == 429) {
+        return 'Too many attempts. Please wait a minute and try again.';
+      }
+    } catch (_) {
+      // no answer (connection dropped or timed out): nothing was stored
+    }
+    return 'Your ballot could not be recorded, and nothing was saved. Please try again.';
+  }
 
   Future<List<Ballot>> getActiveBallots({String search = ''}) async {
     final searchTerm = search.isEmpty ? '%%' : '%$search%';

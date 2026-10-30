@@ -89,9 +89,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
         (route) => false,
       );
     } else {
-      TtsService().speak('Error submitting votes. Please try again.');
+      final message = provider.submitError ?? 'Your ballot could not be recorded, and nothing was saved. Please try again.';
+      TtsService().speak(message);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to submit. Please try again.')),
+        SnackBar(content: Text(message), duration: const Duration(seconds: 8)),
       );
     }
   }

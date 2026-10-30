@@ -154,54 +154,40 @@ class VotingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Message from the last failed submission (null when it worked).
+  String? submitError;
+
   Future<bool> submitAllVotes() async {
     if (selectedBallot == null) return false;
     isSubmitting = true;
+    submitError = null;
     notifyListeners();
 
-    try {
-      for (final result in raceResults) {
-        if (result.selectedPartyId != null) {
-          await _api.submitPartyVote(
-            selectedBallot!.ballotId,
-            result.raceId,
-            result.selectedPartyId!,
-            pinCode,
-          );
-        }
-        for (final cand in result.selectedCandidates) {
-          await _api.submitCandidateVote(
-            selectedBallot!.ballotId,
-            result.raceId,
-            cand.candidateId,
-            pinCode,
-            castValue: cand.rankValue,
-          );
-        }
-      }
+    // The whole ballot goes in one request: stored completely or not at all.
+    final ballot = <String, dynamic>{
+      'ballot_id': selectedBallot!.ballotId,
+      'pincode': pinCode,
+      'candidates': [
+        for (final result in raceResults)
+          for (final cand in result.selectedCandidates)
+            {'race_id': result.raceId, 'candidate_id': cand.candidateId, 'cast_value': cand.rankValue},
+      ],
+      'parties': [
+        for (final result in raceResults)
+          if (result.selectedPartyId != null) {'race_id': result.raceId, 'party_id': result.selectedPartyId},
+      ],
+      'propositions': [
+        for (final prop in propositions)
+          if (prop.vote > 0)
+            {'race_id': 0, 'proposition_id': prop.propositionId, 'cast_yes': prop.vote == 1 ? 1 : 0, 'cast_no': prop.vote == 1 ? 0 : 1},
+      ],
+    };
 
-      for (final prop in propositions) {
-        if (prop.vote > 0) {
-          await _api.submitPropositionVote(
-            selectedBallot!.ballotId,
-            0,
-            prop.propositionId,
-            prop.vote == 1,
-            pinCode,
-          );
-        }
-      }
-
-      await _api.markPinUsed(selectedBallot!.ballotId, pinCode);
-
-      isSubmitting = false;
-      notifyListeners();
-      return true;
-    } catch (e) {
-      isSubmitting = false;
-      notifyListeners();
-      return false;
-    }
+    final error = await _api.submitBallot(ballot);
+    isSubmitting = false;
+    submitError = error;
+    notifyListeners();
+    return error == null;
   }
 
   void reset() {
