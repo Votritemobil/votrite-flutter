@@ -1,0 +1,28 @@
+name: Web Test Build
+
+# Builds the app for a browser so the real app code can be test-driven against the
+# Mock Election before a store release. The output contains the app key, so the
+# artifact is deleted right after it has been downloaded for the test.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.2'
+          channel: 'stable'
+      - run: flutter pub get
+      - name: Build web
+        env:
+          VR_APP_KEY: ${{ secrets.VR_APP_KEY }}
+        run: flutter build web --release --dart-define=VR_APP_KEY="$VR_APP_KEY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: votrite-web-test
+          path: build/web
+          retention-days: 1
