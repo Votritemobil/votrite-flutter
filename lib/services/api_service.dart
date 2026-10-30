@@ -15,7 +15,7 @@ class ApiService {
   // the real app from a script.
   static const String _appKey = String.fromEnvironment('VR_APP_KEY');
 
-  /// hex(HMAC-SHA256(key, "<ballot_id>|<pincode>")) - the same value the server computes.
+  /// hex(HMAC-SHA256(key, "ballot_id|pincode")) - the same value the server computes.
   static String signBallot(String key, Object ballotId, String pincode) {
     return Hmac(sha256, utf8.encode(key)).convert(utf8.encode('$ballotId|$pincode')).toString();
   }
